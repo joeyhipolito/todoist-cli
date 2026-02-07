@@ -36,12 +36,12 @@ func (e *TodoistError) IsNotFoundError() bool {
 	return e.StatusCode == http.StatusNotFound
 }
 
-// IsRetryable returns true if the error is potentially retryable.
+// IsRetryable returns true if the error is potentially retryable (429 or 5xx).
 func (e *TodoistError) IsRetryable() bool {
 	return e.IsRateLimitError() || e.IsServerError()
 }
 
-// Package-level helper functions for error checking.
+// Package-level helper functions for error checking via errors.As.
 
 // IsTodoistError returns true if the error is a TodoistError.
 func IsTodoistError(err error) bool {
@@ -67,11 +67,29 @@ func IsRateLimitError(err error) bool {
 	return false
 }
 
+// IsServerError returns true if the error is a Todoist server error (5xx).
+func IsServerError(err error) bool {
+	var apiErr *TodoistError
+	if errors.As(err, &apiErr) {
+		return apiErr.IsServerError()
+	}
+	return false
+}
+
 // IsNotFoundError returns true if the error is a Todoist not found error.
 func IsNotFoundError(err error) bool {
 	var apiErr *TodoistError
 	if errors.As(err, &apiErr) {
 		return apiErr.IsNotFoundError()
+	}
+	return false
+}
+
+// IsRetryable returns true if the error is potentially retryable.
+func IsRetryable(err error) bool {
+	var apiErr *TodoistError
+	if errors.As(err, &apiErr) {
+		return apiErr.IsRetryable()
 	}
 	return false
 }

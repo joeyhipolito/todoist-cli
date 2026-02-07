@@ -2,8 +2,8 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -31,7 +31,7 @@ type Client struct {
 // NewClient creates a new Todoist API client.
 func NewClient(token string) (*Client, error) {
 	if token == "" {
-		return nil, errors.New("access token is required")
+		return nil, fmt.Errorf("access token is required")
 	}
 
 	return &Client{
@@ -44,18 +44,35 @@ func NewClient(token string) (*Client, error) {
 }
 
 // request performs an HTTP request with retry logic and rate limit handling.
+// Body bytes are captured up front so the request can be retried safely.
 func (c *Client) request(method, endpoint string, body io.Reader) ([]byte, int, error) {
+	// Read body once so we can replay it on retries.
+	var bodyBytes []byte
+	if body != nil {
+		var err error
+		bodyBytes, err = io.ReadAll(body)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to read request body: %w", err)
+		}
+	}
+
 	var lastErr error
 	backoff := InitialBackoff
 
 	for attempt := 0; attempt <= MaxRetries; attempt++ {
 		if attempt > 0 {
 			time.Sleep(backoff)
-			backoff *= 2
+			backoff *= 2 // Exponential backoff: 1s, 2s, 4s
 		}
 
 		url := c.baseURL + endpoint
-		req, err := http.NewRequest(method, url, body)
+
+		var reqBody io.Reader
+		if bodyBytes != nil {
+			reqBody = bytes.NewReader(bodyBytes)
+		}
+
+		req, err := http.NewRequest(method, url, reqBody)
 		if err != nil {
 			return nil, 0, fmt.Errorf("failed to create request: %w", err)
 		}
@@ -67,7 +84,7 @@ func (c *Client) request(method, endpoint string, body io.Reader) ([]byte, int, 
 		resp, err := c.httpClient.Do(req)
 		if err != nil {
 			lastErr = fmt.Errorf("request failed: %w", err)
-			continue
+			continue // Retry on network errors
 		}
 
 		respBody, err := io.ReadAll(resp.Body)
@@ -77,7 +94,7 @@ func (c *Client) request(method, endpoint string, body io.Reader) ([]byte, int, 
 			continue
 		}
 
-		// Handle rate limiting (429)
+		// Handle rate limiting (429) — retry after backoff
 		if resp.StatusCode == http.StatusTooManyRequests {
 			lastErr = NewRateLimitError(60)
 			time.Sleep(60 * time.Second)
@@ -86,31 +103,29 @@ func (c *Client) request(method, endpoint string, body io.Reader) ([]byte, int, 
 
 		// Handle non-2xx status codes
 		if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-			apiErr := &TodoistError{
-				StatusCode: resp.StatusCode,
-			}
-
-			// Try to parse error detail from response body
-			if len(respBody) > 0 {
-				var errMsg string
-				if err := json.Unmarshal(respBody, &errMsg); err == nil {
-					apiErr.Message = errMsg
-				} else {
-					apiErr.Message = string(respBody)
-				}
-			} else {
-				apiErr.Message = fmt.Sprintf("HTTP %d: %s", resp.StatusCode, resp.Status)
-			}
-
+			// Fail-fast on 401 — no point retrying with a bad token
 			if resp.StatusCode == http.StatusUnauthorized {
 				return nil, resp.StatusCode, NewAuthError()
 			}
 
+			apiErr := &TodoistError{
+				StatusCode: resp.StatusCode,
+			}
+
+			// Todoist error responses may be a plain string or {"error": "..."}
+			if len(respBody) > 0 {
+				apiErr.Message = parseErrorBody(respBody)
+			} else {
+				apiErr.Message = http.StatusText(resp.StatusCode)
+			}
+
+			// Retry server errors (5xx) with exponential backoff
 			if apiErr.IsServerError() {
 				lastErr = apiErr
 				continue
 			}
 
+			// Fail-fast on other 4xx (400, 403, 404, etc.)
 			return nil, resp.StatusCode, apiErr
 		}
 
@@ -121,4 +136,25 @@ func (c *Client) request(method, endpoint string, body io.Reader) ([]byte, int, 
 		return nil, 0, fmt.Errorf("request failed after %d retries: %w", MaxRetries, lastErr)
 	}
 	return nil, 0, fmt.Errorf("request failed after %d retries", MaxRetries)
+}
+
+// parseErrorBody extracts a message from a Todoist error response.
+// The API may return a JSON string, {"error": "..."}, or plain text.
+func parseErrorBody(body []byte) string {
+	// Try {"error": "message"} format
+	var structured struct {
+		Error string `json:"error"`
+	}
+	if err := json.Unmarshal(body, &structured); err == nil && structured.Error != "" {
+		return structured.Error
+	}
+
+	// Try bare JSON string (e.g., "\"error message\"")
+	var plain string
+	if err := json.Unmarshal(body, &plain); err == nil && plain != "" {
+		return plain
+	}
+
+	// Fall back to raw body text
+	return string(body)
 }

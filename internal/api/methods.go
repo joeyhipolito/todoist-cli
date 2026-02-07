@@ -5,13 +5,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
-// GetTasks returns all active tasks, optionally filtered.
-func (c *Client) GetTasks(filter string) ([]*Task, error) {
-	endpoint := "/tasks"
+// GetTasks returns all active tasks, optionally filtered by filter query and/or project ID.
+func (c *Client) GetTasks(filter, projectID string) ([]*Task, error) {
+	params := url.Values{}
 	if filter != "" {
-		endpoint += "?filter=" + filter
+		params.Set("filter", filter)
+	}
+	if projectID != "" {
+		params.Set("project_id", projectID)
+	}
+
+	endpoint := "/tasks"
+	if encoded := params.Encode(); encoded != "" {
+		endpoint += "?" + encoded
 	}
 
 	body, _, err := c.request(http.MethodGet, endpoint, nil)

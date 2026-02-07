@@ -29,7 +29,7 @@ func ListCmd(token string, args []string, jsonOutput bool) error {
 		}
 	}
 
-	tasks, err := client.GetTasks(filter)
+	tasks, err := client.GetTasks(filter, "")
 	if err != nil {
 		return err
 	}
