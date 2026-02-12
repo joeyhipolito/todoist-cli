@@ -1,4 +1,4 @@
-// Package api provides the Todoist REST API v2 client.
+// Package api provides the Todoist API v1 client.
 package api
 
 import (
@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	// BaseURL is the Todoist REST API v2 base URL.
-	BaseURL = "https://api.todoist.com/rest/v2"
+	// BaseURL is the Todoist API v1 base URL.
+	BaseURL = "https://api.todoist.com/api/v1"
 
 	// MaxRetries is the maximum number of retry attempts.
 	MaxRetries = 3

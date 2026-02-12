@@ -95,6 +95,8 @@ COMMANDS:
     close                   Complete a task
     delete                  Delete a task
     projects                List all projects
+    projects add            Create a new project
+    projects delete         Delete a project
     labels                  List all labels
     configure               Set up Todoist access token
     configure show          Show current configuration
@@ -114,6 +116,11 @@ ADD TASK:
 CLOSE/DELETE TASK:
     todoist close <task-id>
     todoist delete <task-id>
+
+PROJECTS:
+    todoist projects                    List all projects
+    todoist projects add <name>         Create a new project
+    todoist projects delete <id>        Delete a project
 
 GLOBAL OPTIONS:
     --json              Output in JSON format
@@ -135,8 +142,10 @@ EXAMPLES:
     todoist add "Review PR" --project "Work" --labels "dev,urgent"
     todoist close 1234567890                    # Complete a task
     todoist projects --json                     # List projects as JSON
+    todoist projects add "Work"                 # Create a project
+    todoist projects delete 1234567890          # Delete a project
     todoist doctor                              # Check setup
 
-For more information, visit: https://developer.todoist.com/rest/v2/
+For more information, visit: https://developer.todoist.com/
 `, version)
 }

@@ -1,25 +1,25 @@
 package api
 
-// Task represents a Todoist task (REST API v2).
+// Task represents a Todoist task (API v1).
 type Task struct {
 	ID           string    `json:"id"`
 	ProjectID    string    `json:"project_id"`
 	SectionID    string    `json:"section_id,omitempty"`
 	Content      string    `json:"content"`
 	Description  string    `json:"description,omitempty"`
-	IsCompleted  bool      `json:"is_completed"`
+	IsCompleted  bool      `json:"checked"`
 	Labels       []string  `json:"labels"`
 	ParentID     string    `json:"parent_id,omitempty"`
-	Order        int       `json:"order"`
+	Order        int       `json:"child_order"`
 	Priority     int       `json:"priority"` // 1=normal, 4=urgent (inverted from UI)
 	Due          *Due      `json:"due,omitempty"`
 	Deadline     *Deadline `json:"deadline,omitempty"`
-	URL          string    `json:"url"`
-	CommentCount int       `json:"comment_count"`
-	CreatorID    string    `json:"creator_id"`
-	CreatedAt    string    `json:"created_at"`
-	AssigneeID   string    `json:"assignee_id,omitempty"`
-	AssignerID   string    `json:"assigner_id,omitempty"`
+	NoteCount    int       `json:"note_count"`
+	CreatorID    string    `json:"added_by_uid"`
+	CreatedAt    string    `json:"added_at"`
+	CompletedAt  string    `json:"completed_at,omitempty"`
+	AssigneeID   string    `json:"responsible_uid,omitempty"`
+	AssignerID   string    `json:"assigned_by_uid,omitempty"`
 	Duration     *Duration `json:"duration,omitempty"`
 }
 
@@ -45,20 +45,18 @@ type Duration struct {
 	Unit   string `json:"unit"` // "minute" or "day"
 }
 
-// Project represents a Todoist project.
+// Project represents a Todoist project (API v1).
 type Project struct {
 	ID             string `json:"id"`
 	Name           string `json:"name"`
-	CommentCount   int    `json:"comment_count"`
-	Order          int    `json:"order"`
+	Order          int    `json:"child_order"`
 	Color          string `json:"color"`
 	IsShared       bool   `json:"is_shared"`
 	IsFavorite     bool   `json:"is_favorite"`
-	IsInboxProject bool   `json:"is_inbox_project"`
-	IsTeamInbox    bool   `json:"is_team_inbox"`
-	ViewStyle      string `json:"view_style"` // "list" or "board"
-	URL            string `json:"url"`
+	IsInboxProject bool   `json:"inbox_project"`
+	ViewStyle      string `json:"view_style"` // "list", "board", or "calendar"
 	ParentID       string `json:"parent_id,omitempty"`
+	CreatorID      string `json:"creator_uid,omitempty"`
 }
 
 // Label represents a Todoist personal label.
@@ -68,6 +66,11 @@ type Label struct {
 	Color      string `json:"color"`
 	Order      int    `json:"order"`
 	IsFavorite bool   `json:"is_favorite"`
+}
+
+// CreateProjectRequest represents the payload for creating a project.
+type CreateProjectRequest struct {
+	Name string `json:"name"`
 }
 
 // CreateTaskRequest represents the payload for creating a task.
