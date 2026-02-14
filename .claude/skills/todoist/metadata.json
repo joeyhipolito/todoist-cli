@@ -1,0 +1,21 @@
+{
+  "name": "todoist",
+  "description": "Manages Todoist tasks, projects, and labels via todoist CLI",
+  "author": "joeyhipolito",
+  "version": "1.0.0",
+  "category": "integration",
+  "format": "agent-skills",
+  "standard": "agentskills.io",
+  "compatible": ["claude-code", "cursor", "npx-skills", "gemini-cli"],
+  "tags": ["todoist", "tasks", "productivity", "todo"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joeyhipolito/todoist"
+  },
+  "installation": {
+    "methods": [
+      "npx skills i joeyhipolito/todoist",
+      "cp -r .claude/skills/todoist ~/.claude/skills/"
+    ]
+  }
+}
