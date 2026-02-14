@@ -57,6 +57,17 @@ func FormatLabelLine(l *api.Label) string {
 	return fmt.Sprintf("  %s @%s%s", l.ID, l.Name, fav)
 }
 
+// FormatCompletedTaskLine renders a completed task as a human-readable one-liner.
+//
+// Format: "  <completed_date> | <content>"
+func FormatCompletedTaskLine(t *api.CompletedTask) string {
+	date := t.CompletedAt
+	if len(date) >= 10 {
+		date = date[:10]
+	}
+	return fmt.Sprintf("  %s | %s", date, t.Content)
+}
+
 // MaskToken returns a masked version of an access token for display.
 // Shows first 4 and last 4 characters with "..." in between.
 func MaskToken(token string) string {

@@ -76,6 +76,8 @@ func run() error {
 		return cmd.DeleteCmd(token, filteredArgs, jsonOutput)
 	case "projects":
 		return cmd.ProjectsCmd(token, filteredArgs, jsonOutput)
+	case "completed":
+		return cmd.CompletedCmd(token, filteredArgs, jsonOutput)
 	case "labels":
 		return cmd.LabelsCmd(token, filteredArgs, jsonOutput)
 	default:
@@ -91,6 +93,7 @@ USAGE:
 
 COMMANDS:
     list                    List tasks (default: today & overdue)
+    completed               List completed tasks
     add                     Add a new task
     close                   Complete a task
     delete                  Delete a task
@@ -105,6 +108,12 @@ COMMANDS:
 LIST TASKS:
     todoist list [options]
         --filter <query>        Filter (today, overdue, p1, @label, #project)
+
+COMPLETED TASKS:
+    todoist completed [options]
+        --project <name>        Filter by project name
+        --since <YYYY-MM-DD>    Only tasks completed after this date
+        --limit <n>             Max results (default: 50)
 
 ADD TASK:
     todoist add <task name> [options]
@@ -144,6 +153,9 @@ EXAMPLES:
     todoist projects --json                     # List projects as JSON
     todoist projects add "Work"                 # Create a project
     todoist projects delete 1234567890          # Delete a project
+    todoist completed                            # Recently completed tasks
+    todoist completed --since 2026-02-01        # Completed after date
+    todoist completed --project "Work"           # Completed in project
     todoist doctor                              # Check setup
 
 For more information, visit: https://developer.todoist.com/

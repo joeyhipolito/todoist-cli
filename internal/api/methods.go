@@ -87,6 +87,37 @@ func (c *Client) DeleteTask(taskID string) error {
 	return nil
 }
 
+// GetCompletedTasks returns completed tasks with optional filtering.
+func (c *Client) GetCompletedTasks(projectID, since string, limit int) (*CompletedResponse, error) {
+	params := url.Values{}
+	if projectID != "" {
+		params.Set("project_id", projectID)
+	}
+	if since != "" {
+		params.Set("since", since)
+	}
+	if limit > 0 {
+		params.Set("limit", fmt.Sprintf("%d", limit))
+	}
+
+	endpoint := "/tasks/completed"
+	if encoded := params.Encode(); encoded != "" {
+		endpoint += "?" + encoded
+	}
+
+	body, _, err := c.request(http.MethodGet, endpoint, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get completed tasks: %w", err)
+	}
+
+	var resp CompletedResponse
+	if err := json.Unmarshal(body, &resp); err != nil {
+		return nil, fmt.Errorf("failed to parse completed tasks: %w", err)
+	}
+
+	return &resp, nil
+}
+
 // GetProjects returns all projects.
 func (c *Client) GetProjects() ([]*Project, error) {
 	body, _, err := c.request(http.MethodGet, "/projects", nil)

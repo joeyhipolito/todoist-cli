@@ -59,6 +59,24 @@ type Project struct {
 	CreatorID      string `json:"creator_uid,omitempty"`
 }
 
+// CompletedTask represents a completed task from the Todoist API v1.
+// This is a different shape than active Task — returned by GET /tasks/completed.
+type CompletedTask struct {
+	ID          string  `json:"id"`
+	TaskID      string  `json:"task_id"`
+	ProjectID   string  `json:"project_id"`
+	SectionID   *string `json:"section_id"`
+	Content     string  `json:"content"`
+	CompletedAt string  `json:"completed_at"`
+	NoteCount   int     `json:"note_count"`
+}
+
+// CompletedResponse wraps the response from GET /tasks/completed.
+type CompletedResponse struct {
+	Items    []CompletedTask    `json:"items"`
+	Projects map[string]Project `json:"projects"`
+}
+
 // Label represents a Todoist personal label.
 type Label struct {
 	ID         string `json:"id"`
