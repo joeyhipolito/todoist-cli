@@ -2,6 +2,10 @@
 name: todoist
 description: Manages Todoist tasks, projects, and labels via todoist CLI. Use when user asks about tasks, to-dos, deadlines, or wants to add/complete tasks.
 allowed-tools: Bash(todoist:*)
+argument-hint: "[task or filter]"
+keywords: todoist, tasks, productivity, projects, labels
+category: integration
+version: "1.0.0"
 ---
 
 # Todoist - Task Management
@@ -90,7 +94,7 @@ access_token=your-todoist-api-token
 
 Get token from: https://todoist.com/app/settings/integrations/developer
 
-Or use environment variable: `TODOIST_API_TOKEN`
+Or use environment variable: `TODOIST_ACCESS_TOKEN`
 
 ## Examples
 

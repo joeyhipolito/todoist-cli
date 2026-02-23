@@ -2,35 +2,35 @@ package api
 
 // Task represents a Todoist task (API v1).
 type Task struct {
-	ID           string    `json:"id"`
-	ProjectID    string    `json:"project_id"`
-	SectionID    string    `json:"section_id,omitempty"`
-	Content      string    `json:"content"`
-	Description  string    `json:"description,omitempty"`
-	IsCompleted  bool      `json:"checked"`
-	Labels       []string  `json:"labels"`
-	ParentID     string    `json:"parent_id,omitempty"`
-	Order        int       `json:"child_order"`
-	Priority     int       `json:"priority"` // 1=normal, 4=urgent (inverted from UI)
-	Due          *Due      `json:"due,omitempty"`
-	Deadline     *Deadline `json:"deadline,omitempty"`
-	NoteCount    int       `json:"note_count"`
-	CreatorID    string    `json:"added_by_uid"`
-	CreatedAt    string    `json:"added_at"`
-	CompletedAt  string    `json:"completed_at,omitempty"`
-	AssigneeID   string    `json:"responsible_uid,omitempty"`
-	AssignerID   string    `json:"assigned_by_uid,omitempty"`
-	Duration     *Duration `json:"duration,omitempty"`
+	ID          string    `json:"id"`
+	ProjectID   string    `json:"project_id"`
+	SectionID   string    `json:"section_id,omitempty"`
+	Content     string    `json:"content"`
+	Description string    `json:"description,omitempty"`
+	IsCompleted bool      `json:"checked"`
+	Labels      []string  `json:"labels"`
+	ParentID    string    `json:"parent_id,omitempty"`
+	Order       int       `json:"child_order"`
+	Priority    int       `json:"priority"` // 1=normal, 4=urgent (inverted from UI)
+	Due         *Due      `json:"due,omitempty"`
+	Deadline    *Deadline `json:"deadline,omitempty"`
+	NoteCount   int       `json:"note_count"`
+	CreatorID   string    `json:"added_by_uid"`
+	CreatedAt   string    `json:"added_at"`
+	CompletedAt string    `json:"completed_at,omitempty"`
+	AssigneeID  string    `json:"responsible_uid,omitempty"`
+	AssignerID  string    `json:"assigned_by_uid,omitempty"`
+	Duration    *Duration `json:"duration,omitempty"`
 }
 
 // Due represents a task's due date.
 type Due struct {
 	String      string `json:"string"`
-	Date        string `json:"date"`                   // YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS
+	Date        string `json:"date"` // YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS
 	IsRecurring bool   `json:"is_recurring"`
-	Datetime    string `json:"datetime,omitempty"`      // RFC3339
+	Datetime    string `json:"datetime,omitempty"` // RFC3339
 	Timezone    string `json:"timezone,omitempty"`
-	Lang        string `json:"lang,omitempty"`          // IETF language tag
+	Lang        string `json:"lang,omitempty"` // IETF language tag
 }
 
 // Deadline represents a task's hard deadline (separate from due date).
