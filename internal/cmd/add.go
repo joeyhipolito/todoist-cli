@@ -12,6 +12,22 @@ import (
 
 // AddCmd creates a new task.
 func AddCmd(token string, args []string, jsonOutput bool) error {
+	for _, arg := range args {
+		if arg == "--help" || arg == "-h" {
+			fmt.Print(`Usage: todoist add <task name> [options]
+
+Options:
+  --date <date>          Due date (today, tomorrow, YYYY-MM-DD)
+  --priority <1-4>       Priority (1=urgent, 4=normal)
+  --project <name>       Target project
+  --labels <l1,l2>       Comma-separated labels
+  --json                 Output result as JSON
+  --help, -h             Show this help
+`)
+			return nil
+		}
+	}
+
 	if len(args) < 1 {
 		return fmt.Errorf("add requires a task name\n\nUsage: todoist add <task name> [--date <date>] [--priority <1-4>] [--project <name>] [--labels <l1,l2>]")
 	}
