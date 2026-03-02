@@ -67,15 +67,15 @@ func ConfigureCmd() error {
 
 // ConfigureShowCmd prints the current configuration (with token masked).
 func ConfigureShowCmd(jsonOutput bool) error {
-	cfg, err := config.Load()
-	if err != nil {
-		return fmt.Errorf("failed to load config: %w", err)
-	}
-
 	if !config.Exists() {
 		fmt.Println("No configuration file found.")
 		fmt.Println("Run 'todoist configure' to set up.")
 		return nil
+	}
+
+	cfg, err := config.Load()
+	if err != nil {
+		return fmt.Errorf("failed to load config: %w", err)
 	}
 
 	// Mask token for display
